@@ -2,12 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TOKEN_BUFFER_INIT_SIZE 256
+// Define Tokens
 
-// Character significance in grammar
-
-static const char SPECIAL[] = ".\\=\n";
-static const char IGNORE[] = " ";
+static const char SPECIAL[] = ".\\=\n ";
 
 // Lexer structure
 
@@ -16,7 +13,7 @@ typedef enum {
   BackSlash = 1,
   Equals = 2,
   Newline = 3,
-  End = 4,
+  Space = 4,
   Ident = 5
 } TokenType;
 
@@ -25,58 +22,56 @@ typedef struct {
   int start, end;
 } LexerToken;
 
-LexerToken *lexer(const char *input) {
-  LexerToken current;
-  LexerToken *buffer = (LexerToken*)calloc(sizeof(LexerToken), TOKEN_BUFFER_INIT_SIZE);
-  int current_empty = 1;
-  int buffer_len = 0;
+typedef struct {
+  LexerToken *buffer;
+  int size;
+} LexerResult;
 
-  for (int i = 0; i < strlen(input) + 1; i++) { 
+LexerResult lexer(const char *input) {
+  LexerResult result = { .buffer = (LexerToken*)calloc(sizeof(LexerToken), strlen(input)), .size = 0 };
+  
+  for (int i = 0; input[i]; i++) { 
     const char c = input[i];
 
-    // Check if c is in ignore list
-    
-    int j = 0;
-    for (; j < strlen(IGNORE); j++)
-      if (IGNORE[j] == c) break;
-    if (j < strlen(IGNORE)) continue;
-
-    // Check is c is in special list
-
     int token_type = 0;
-    for (; token_type < strlen(SPECIAL) + 1; token_type++)
+    for (; SPECIAL[token_type]; token_type++)
       if (SPECIAL[token_type] == c) break;
 
-    if (token_type != Ident && !current_empty) {
-      buffer[buffer_len] = current;
-      current_empty = 1;
-      buffer_len++;
-
-      buffer[buffer_len] = (LexerToken){.type = token_type, .start = i, .end = i};
-      buffer_len++;
-    } else if (token_type < Ident && current_empty) {
-      buffer[buffer_len] = (LexerToken){.type = token_type, .start = i, .end = i};
-      buffer_len++;
-    } else if (token_type == Ident && current_empty) {
-      current = (LexerToken){.type = Ident, .start = i, .end = i};
-      current_empty = 0;
+    if (token_type != Ident) {
+      LexerToken t = (LexerToken){.type = token_type, .start = i, .end = i};
+      result.buffer[result.size] = t;
+      result.size++;
     } else {
-      current.end++;
+      int j = i;
+      for (; input[j]; j++) {
+        const char c2 = input[j];
+        
+        int next_token_type = 0;
+        for (; SPECIAL[next_token_type]; next_token_type++)
+          if (SPECIAL[next_token_type] == c2) break;
+
+        if (next_token_type != Ident) break;  
+      }
+      j--;
+      LexerToken token = {.type = token_type, .start = i, .end = j};      
+      result.buffer[result.size] = token;
+      result.size++;
+      i = j;
     }
+   
   }
   
-  if (!current_empty) {
-     buffer[buffer_len] = current;
-     current_empty = 1;
-     buffer_len++;
-  }
-  
-  return buffer;
+  return result;
 }
 
 int main() {
 
-  LexerToken *buffer = lexer("\\x.y x");
+  LexerResult result = lexer("\\x.y x");
+  LexerToken *buffer = result.buffer;
+
+  for (int i = 0; i < result.size; i++) {
+    printf("%d %d %d %d\n", i, buffer[i].type, buffer[i].start, buffer[i].end);
+  }
 
   return 0;
   
