@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "lexer.h"
 
 LexerResult lexer(const char *input) {
@@ -11,7 +12,7 @@ LexerResult lexer(const char *input) {
     for (; SPECIAL[token_type]; token_type++)
       if (SPECIAL[token_type] == c) break;
 
-    if (token_type != Ident) {
+    if (token_type != TT_Ident) {
       LexerToken t = (LexerToken){.type = token_type, .start = i, .end = i};
       result.buffer[result.size] = t;
       result.size++;
@@ -24,7 +25,7 @@ LexerResult lexer(const char *input) {
         for (; SPECIAL[next_token_type]; next_token_type++)
           if (SPECIAL[next_token_type] == c2) break;
 
-        if (next_token_type != Ident) break;  
+        if (next_token_type != TT_Ident) break;  
       }
       j--;
       LexerToken token = {.type = token_type, .start = i, .end = j};      

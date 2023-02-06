@@ -3,14 +3,14 @@
 static const char SPECIAL[] = ".\\=()\n ";
 
 typedef enum {
-  Dot = 0,
-  BackSlash = 1,
-  Equals = 2,
-  OpenBracket = 3,
-  CloseBracket  = 4,
-  Newline = 5,
-  Space = 6,
-  Ident = 7
+  Dot,
+  BackSlash,
+  Equals,
+  OpenBracket,
+  CloseBracket,
+  Newline,
+  Space,
+  TT_Ident,
 } TokenType;
 
 typedef struct {
