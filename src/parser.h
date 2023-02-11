@@ -8,24 +8,29 @@ typedef enum {
   Assignment,
 } NodeType;
 
-/*
-  Lambda: LambdaContent*
-  Ident: char*
-  Assignment: AssignmentContent*
-*/
 typedef struct {
   NodeType type;
   void *content;
 } Node;
 
 typedef struct {
+  Node *ast;
+  int size;
+} ParserResult;
+
+typedef struct {
   char **parameters;
-  Node *body;
+  int parameter_number;
+  ParserResult body;
 } LambdaContent;
+
+typedef struct {
+  int start, end;
+} NT_IdentContent;
 
 typedef struct {
   char *assignee;
   Node *body;
 } AssignmentContent;
 
-Node *parser(LexerResult tokens);
+ParserResult parser(LexerToken *tokens, int size, const char *text, int *i);

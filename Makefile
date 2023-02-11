@@ -8,7 +8,7 @@ SRCS    += $(wildcard $(SRC)/*/*.c)
 SRCS    += $(wildcard $(SRC)/*/*/*.c)
 OBJS    = $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
 EXE     = lci
-CFLAGS  = -I$(INCLUDE) -std=c17 -pedantic
+CFLAGS  = -I$(INCLUDE) -std=c2x -pedantic
 LDLIBS  = -lm
 
 $(OBJ)/%.o: $(SRC)/%.c

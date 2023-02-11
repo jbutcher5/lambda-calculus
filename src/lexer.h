@@ -1,6 +1,6 @@
 #pragma once
 
-static const char SPECIAL[] = ".\\=()\n ";
+static const char SPECIAL[] = ".\\=()\n ->";
 
 typedef enum {
   Dot,
@@ -10,6 +10,8 @@ typedef enum {
   CloseBracket,
   Newline,
   Space,
+  Dash,
+  GreaterThan,
   TT_Ident,
 } TokenType;
 
