@@ -16,14 +16,14 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
   }
   
   while (*i < size) {
-    LexerToken token = tokens[*i];
+    const LexerToken token = tokens[*i];
     if (token.type == TT_Ident) {
       NT_IdentContent *content = (NT_IdentContent*)malloc(sizeof(NT_IdentContent));
       content->start = token.start;
       content->end = token.end;
       buffer[j] = (Node){NT_Ident, content};
       j++;
-      i++;  
+      (*i)++;  
     } else if (token.type == BackSlash) {
       char **parameters = (char **)malloc(sizeof(char*) * 16);
       int parameter_count = 0;
@@ -33,6 +33,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
         if (tokens[k].type == TT_Ident) {
           const LexerToken t = tokens[k];
           parameters[parameter_count] = strndup(text+t.start, t.end-t.start); 
+          parameter_count++;
         }
       }
       k += 2;
