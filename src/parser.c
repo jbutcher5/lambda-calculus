@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "lexer.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,7 +33,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
       for (; tokens[k].type != Dash && tokens[k+1].type != GreaterThan; k++) {
         if (tokens[k].type == TT_Ident) {
           const LexerToken t = tokens[k];
-          parameters[parameter_count] = strndup(text+t.start, t.end-t.start); 
+          parameters[parameter_count] = slice_string(text, t.start, t.end+1); 
           parameter_count++;
         }
       }

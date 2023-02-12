@@ -6,8 +6,8 @@
 int main() {
 
   const char *text = "\\x -> x";
-  LexerResult tokens = lexer(text);
-  ParserResult ast = parser(tokens.buffer, tokens.size, text, NULL);
+  LexerResult lexed = lexer(text);
+  ParserResult parsed = parser(lexed.buffer, lexed.size, text, NULL);
 
   return 0;
   
