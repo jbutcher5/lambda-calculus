@@ -49,6 +49,16 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
       
       buffer[j] = (Node){Lambda, (void*)content};
       j++;
+    } else if (token.type == OpenBracket) {
+      int closing_bracket = next_bracket(tokens, *i, size);
+      if (closing_bracket < 0) exit(1);
+      
+      ParserResult brackets = parser(tokens + (*i) + 1, closing_bracket, text, i);
+
+      for (int k = 0; k < brackets.size; k++) {
+        buffer[j] = brackets.ast[k];
+        j++;
+      }
     } else {
       (*i)++;
     }
