@@ -55,14 +55,59 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
       
       ParserResult brackets = parser(tokens + (*i) + 1, closing_bracket, text, i);
 
-      for (int k = 0; k < brackets.size; k++) {
-        buffer[j] = brackets.ast[k];
-        j++;
-      }
+      int k = 0;
+      for (; k < brackets.size; k++) buffer[j] = brackets.ast[k];
+      j += k;
+      
     } else {
       (*i)++;
     }
   }
 
   return (ParserResult){buffer, j};
+}
+
+char *display_node(Node *node, char *buffer, int buffer_size, const char *reference) {
+  if (!buffer) {
+    buffer = calloc(sizeof(char), 128);
+    buffer_size = 128;
+  }
+
+  if (node->type == 0) {
+    LambdaContent *lambda_content = (LambdaContent *)node->content;
+    char *param_display = display_parameters(lambda_content->parameters, lambda_content->parameter_number);
+    
+    snprintf(buffer, buffer_size, "(\\%s->", param_display);
+
+    for (int i = 0; i < lambda_content->body.size; i++) {
+      char *node_literal = display_node(lambda_content->body.ast+i, NULL, 0, reference);
+      strcat(buffer, " ");
+      strcat(buffer, node_literal);
+      free(node_literal);
+    }
+
+    strcat(buffer, ")");
+
+    free(param_display);
+    
+  } else if (node->type == 1) {
+    NT_IdentContent *ident_content = (NT_IdentContent *)node->content;
+    buffer = slice_string(reference, ident_content->start, ident_content->end + 1);
+  }
+
+  return buffer;
+
+}
+
+char *display_parameters(char **parameters, int parameter_number) {
+  int buffer_size = sizeof(char) * 16 * parameter_number + parameter_number + 1;
+  char *buffer = (char *)malloc(buffer_size);
+  *buffer = 0;
+
+  for (int i = 0; i < parameter_number; i++) {
+    strcat(buffer, parameters[i]);
+    strcat(buffer, " ");
+  }
+
+  return buffer;
 }

@@ -34,3 +34,5 @@ typedef struct {
 } AssignmentContent;
 
 ParserResult parser(LexerToken *tokens, int size, const char *text, int *i);
+char *display_node(Node *node, char *buffer, int buffer_size, const char *reference);
+char *display_parameters(char **parameters, int parameter_number);
