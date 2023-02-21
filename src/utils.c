@@ -31,3 +31,4 @@ int next_bracket(const LexerToken *tokens, int start, int size) {
 
   return -1;
 }
+
