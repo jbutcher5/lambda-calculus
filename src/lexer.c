@@ -33,9 +33,8 @@ LexerResult lexer(const char *input) {
       result.size++;
       i = j;
     }
-   
   }
-  
+
   return result;
 }
 

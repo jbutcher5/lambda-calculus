@@ -4,11 +4,11 @@
 #include "parser.h"
 
 int main() {
-  const char *text = "(\\x -> x) (\\x -> x)";
+  const char *text = "(\\x z -> z x x) (\\x y -> y x)";
   LexerResult lexed = lexer(text);
   ParserResult parsed = parser(lexed.buffer, lexed.size, text, NULL);
 
-  printf("%s", display_node(parsed.ast, NULL, 0, text));
+  print_ast(parsed, text);
 
   return 0;
 }

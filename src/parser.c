@@ -52,8 +52,9 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
     } else if (token.type == OpenBracket) {
       int closing_bracket = next_bracket(tokens, *i, size);
       if (closing_bracket < 0) exit(1);
-      
-      ParserResult brackets = parser(tokens + (*i) + 1, closing_bracket, text, i);
+
+      (*i)++;
+      ParserResult brackets = parser(tokens, closing_bracket, text, i);
 
       int k = 0;
       for (; k < brackets.size; k++) buffer[j] = brackets.ast[k];
@@ -110,4 +111,30 @@ char *display_parameters(char **parameters, int parameter_number) {
   }
 
   return buffer;
+}
+
+void print_ast(ParserResult result, const char *reference) {
+  if (!result.size) return;
+  
+  char *first = display_node(result.ast, NULL, 0, reference);
+  char *buffer = malloc((strlen(first) + 1) * sizeof(char));
+  strcpy(buffer, first);
+  free(first);
+  strcat(buffer, " ");
+    
+  for (int i = 1; i < result.size; i++) {
+    char *literal_node = display_node(result.ast + i, NULL, 0, reference);
+    
+    if (i + 1 == result.size) {
+      strcat(buffer, literal_node);
+    } else {
+      strcat(buffer, literal_node);
+      strcat(buffer, " ");
+    }
+
+    free(literal_node);
+  }
+
+  printf("%s\n", buffer);
+  free(buffer);
 }

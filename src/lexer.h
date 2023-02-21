@@ -1,9 +1,8 @@
 #pragma once
 
-static const char SPECIAL[] = ".\\=()\n ->";
+static const char SPECIAL[] = "\\=()\n ->";
 
 typedef enum {
-  Dot,
   BackSlash,
   Equals,
   OpenBracket,
@@ -26,4 +25,5 @@ typedef struct {
 } LexerResult;
 
 LexerResult lexer(const char *input);
+
  
