@@ -20,9 +20,10 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
     const LexerToken token = tokens[*i];
     if (token.type == TT_Ident) {
       NT_IdentContent *content = (NT_IdentContent*)malloc(sizeof(NT_IdentContent));
-      content->start = token.start;
-      content->end = token.end;
+      
+      content->text = slice_string(text, token.start, token.end+1);
       buffer[j] = (Node){NT_Ident, content};
+      
       j++;
       (*i)++;  
     } else if (token.type == BackSlash) {
@@ -37,6 +38,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
           parameter_count++;
         }
       }
+      
       k += 2;
       *i = k;
 
@@ -47,7 +49,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
       content->parameters = parameters;
       content->body = lambda;
       
-      buffer[j] = (Node){Lambda, (void*)content};
+      buffer[j] = (Node){Lambda, content};
       j++;
     } else if (token.type == OpenBracket) {
       int closing_bracket = next_bracket(tokens, *i, size);
@@ -68,7 +70,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
   return (ParserResult){buffer, j};
 }
 
-char *display_node(Node *node, char *buffer, int buffer_size, const char *reference) {
+char *display_node(Node *node, char *buffer, int buffer_size) {
   if (!buffer) {
     buffer = calloc(sizeof(char), 128);
     buffer_size = 128;
@@ -81,7 +83,7 @@ char *display_node(Node *node, char *buffer, int buffer_size, const char *refere
     snprintf(buffer, buffer_size, "(\\%s->", param_display);
 
     for (int i = 0; i < lambda_content->body.size; i++) {
-      char *node_literal = display_node(lambda_content->body.ast+i, NULL, 0, reference);
+      char *node_literal = display_node(lambda_content->body.ast+i, NULL, 0);
       strcat(buffer, " ");
       strcat(buffer, node_literal);
       free(node_literal);
@@ -93,7 +95,8 @@ char *display_node(Node *node, char *buffer, int buffer_size, const char *refere
     
   } else if (node->type == 1) {
     NT_IdentContent *ident_content = (NT_IdentContent *)node->content;
-    buffer = slice_string(reference, ident_content->start, ident_content->end + 1);
+    buffer = realloc(buffer, sizeof(char) * strlen(ident_content->text) + 1);
+    strcpy(buffer, ident_content->text);
   }
 
   return buffer;
@@ -113,17 +116,17 @@ char *display_parameters(char **parameters, int parameter_number) {
   return buffer;
 }
 
-void print_ast(ParserResult result, const char *reference) {
+void print_ast(ParserResult result) {
   if (!result.size) return;
   
-  char *first = display_node(result.ast, NULL, 0, reference);
+  char *first = display_node(result.ast, NULL, 0);
   char *buffer = malloc((strlen(first) + 1) * sizeof(char));
   strcpy(buffer, first);
   free(first);
   strcat(buffer, " ");
     
   for (int i = 1; i < result.size; i++) {
-    char *literal_node = display_node(result.ast + i, NULL, 0, reference);
+    char *literal_node = display_node(result.ast + i, NULL, 0);
     
     if (i + 1 == result.size) {
       strcat(buffer, literal_node);

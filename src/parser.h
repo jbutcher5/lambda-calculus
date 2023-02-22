@@ -25,7 +25,7 @@ typedef struct {
 } LambdaContent;
 
 typedef struct {
-  int start, end;
+  char *text;
 } NT_IdentContent;
 
 typedef struct {
@@ -34,8 +34,8 @@ typedef struct {
 } AssignmentContent;
 
 ParserResult parser(LexerToken *tokens, int size, const char *text, int *i);
-char *display_node(Node *node, char *buffer, int buffer_size, const char *reference);
+char *display_node(Node *node, char *buffer, int buffer_size);
 char *display_parameters(char **parameters, int parameter_number);
-void print_ast(ParserResult result, const char *reference);
+void print_ast(ParserResult result);
 
 

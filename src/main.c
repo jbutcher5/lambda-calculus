@@ -8,7 +8,7 @@ int main() {
   LexerResult lexed = lexer(text);
   ParserResult parsed = parser(lexed.buffer, lexed.size, text, NULL);
 
-  print_ast(parsed, text);
+  print_ast(parsed);
 
   return 0;
 }
