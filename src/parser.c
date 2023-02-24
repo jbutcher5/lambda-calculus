@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #define NODE_BUFFER_DEFAULT_SIZE 16
 
@@ -21,7 +22,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
     if (token.type == TT_Ident) {
       NT_IdentContent *content = (NT_IdentContent*)malloc(sizeof(NT_IdentContent));
       
-      content->text = slice_string(text, token.start, token.end+1);
+      *content = slice_string(text, token.start, token.end+1);
       buffer[j] = (Node){NT_Ident, content};
       
       j++;
@@ -48,6 +49,8 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
       content->parameter_number = parameter_count;
       content->parameters = parameters;
       content->body = lambda;
+
+      convert_de_bruijn_index(content);
       
       buffer[j] = (Node){Lambda, content};
       j++;
@@ -76,7 +79,7 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
     buffer_size = 128;
   }
 
-  if (node->type == 0) {
+  if (node->type == Lambda) {
     LambdaContent *lambda_content = (LambdaContent *)node->content;
     char *param_display = display_parameters(lambda_content->parameters, lambda_content->parameter_number);
     
@@ -93,14 +96,26 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
 
     free(param_display);
     
-  } else if (node->type == 1) {
+  } else if (node->type == NT_Ident) {
     NT_IdentContent *ident_content = (NT_IdentContent *)node->content;
-    buffer = realloc(buffer, sizeof(char) * strlen(ident_content->text) + 1);
-    strcpy(buffer, ident_content->text);
+    buffer = realloc(buffer, sizeof(char) * strlen(*ident_content) + 1);
+    strcpy(buffer, *ident_content);
+  } else if (node->type == Parameter) {
+    ParameterContent *parameter_content = (ParameterContent *)node->content;
+
+    int allocation_size;
+
+    if (!*parameter_content) allocation_size = 2; 
+    else {
+      allocation_size = (int)(log10((float)abs(*parameter_content)) + 1) + 1;
+      allocation_size += allocation_size < 0;
+    }
+    
+    buffer = realloc(buffer, sizeof(char) * allocation_size);
+    snprintf(buffer, allocation_size, "%d", *parameter_content);
   }
 
   return buffer;
-
 }
 
 char *display_parameters(char **parameters, int parameter_number) {
@@ -138,6 +153,27 @@ void print_ast(ParserResult result) {
     free(literal_node);
   }
 
-  printf("%s\n", buffer);
+  strcat(buffer, "\n");
+  puts(buffer);
   free(buffer);
+}
+
+void convert_de_bruijn_index(LambdaContent *lambda) {
+  for (int i = 0; i < lambda->body.size; i++) {
+    const Node node = lambda->body.ast[i];
+
+    if (node.type == NT_Ident) {
+      for (int j = lambda->parameter_number - 1; j >= 0; j--) {
+        if (!strcmp(lambda->parameters[j], *(NT_IdentContent*)node.content)) {
+          free(node.content);
+          ParameterContent *content = calloc(1, sizeof(int));
+          *content = j; 
+          lambda->body.ast[i] = (Node){Parameter, content};
+        }
+      }
+    }
+
+    // TODO: Replace in lambdas within this lambda, i.e. '\x.y.x x' = '\x.y.x 0' and '\x.(\y.x)(\y.x)' = '\x.(\y.0)(\y.0)'
+     
+  }
 }

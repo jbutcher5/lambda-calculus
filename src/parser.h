@@ -6,6 +6,7 @@ typedef enum {
   Lambda,
   NT_Ident,
   Assignment,
+  Parameter,
 } NodeType;
 
 typedef struct {
@@ -24,18 +25,18 @@ typedef struct {
   ParserResult body;
 } LambdaContent;
 
-typedef struct {
-  char *text;
-} NT_IdentContent;
+typedef char * NT_IdentContent;
 
 typedef struct {
   char *assignee;
   Node *body;
 } AssignmentContent;
 
+typedef int ParameterContent;
+
 ParserResult parser(LexerToken *tokens, int size, const char *text, int *i);
 char *display_node(Node *node, char *buffer, int buffer_size);
 char *display_parameters(char **parameters, int parameter_number);
 void print_ast(ParserResult result);
-
+void convert_de_bruijn_index(LambdaContent *lambda);
 
