@@ -143,7 +143,6 @@ void print_ast(ParserResult result) {
     free(literal_node);
   }
 
-  strcat(buffer, "\n");
   puts(buffer);
   free(buffer);
 }
