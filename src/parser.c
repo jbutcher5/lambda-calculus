@@ -102,17 +102,7 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
     strcpy(buffer, *ident_content);
   } else if (node->type == Parameter) {
     ParameterContent *parameter_content = (ParameterContent *)node->content;
-
-    int allocation_size;
-
-    if (!*parameter_content) allocation_size = 2; 
-    else {
-      allocation_size = (int)(log10((float)abs(*parameter_content)) + 1) + 1;
-      allocation_size += allocation_size < 0;
-    }
-    
-    buffer = realloc(buffer, sizeof(char) * allocation_size);
-    snprintf(buffer, allocation_size, "%d", *parameter_content);
+    strcpy(buffer, parameter_content->name);
   }
 
   return buffer;
@@ -166,14 +156,19 @@ void convert_de_bruijn_index(LambdaContent *lambda) {
       for (int j = lambda->parameter_number - 1; j >= 0; j--) {
         if (!strcmp(lambda->parameters[j], *(NT_IdentContent*)node.content)) {
           free(node.content);
-          ParameterContent *content = calloc(1, sizeof(int));
-          *content = j; 
+          ParameterContent *content = malloc(sizeof(ParameterContent));
+          content->value = j;
+          content->name = calloc(NODE_BUFFER_DEFAULT_SIZE, sizeof(char));
+          memcpy(content->name, lambda->parameters[j], NODE_BUFFER_DEFAULT_SIZE+1); 
           lambda->body.ast[i] = (Node){Parameter, content};
         }
       }
     } else if (node.type == Lambda) {
       LambdaContent *lambda_content = (LambdaContent *)node.content;
       LambdaContent new;
+
+      /* TODO: Check if the memory allocatoins are actually required
+         here for the ParameterContent::name, could be a (char **) */
 
       int combined_length = lambda_content->parameter_number + lambda->parameter_number;      
       char **new_parameters = malloc(sizeof(char)*combined_length);
