@@ -171,9 +171,33 @@ void convert_de_bruijn_index(LambdaContent *lambda) {
           lambda->body.ast[i] = (Node){Parameter, content};
         }
       }
-    }
+    } else if (node.type == Lambda) {
+      LambdaContent *lambda_content = (LambdaContent *)node.content;
+      LambdaContent new;
 
-    // TODO: Replace in lambdas within this lambda, i.e. '\x.y.x x' = '\x.y.x 0' and '\x.(\y.x)(\y.x)' = '\x.(\y.0)(\y.0)'
-     
+      int combined_length = lambda_content->parameter_number + lambda->parameter_number;      
+      char **new_parameters = malloc(sizeof(char)*combined_length);
+
+      for (int i = 0; i < lambda->parameter_number; i++) {
+        char *parameter = malloc(sizeof(char)*NODE_BUFFER_DEFAULT_SIZE);
+        
+        memcpy(parameter, lambda->parameters[i], NODE_BUFFER_DEFAULT_SIZE+1);
+        new_parameters[i] = parameter;
+      }
+
+      for (int i = 0; i < lambda_content->parameter_number; i++) {
+        char *parameter = malloc(sizeof(char)*NODE_BUFFER_DEFAULT_SIZE);
+      
+        memcpy(parameter, lambda_content->parameters[i], NODE_BUFFER_DEFAULT_SIZE+1);
+        new_parameters[i + lambda->parameter_number] = parameter;        
+      }
+
+      new = (LambdaContent){.parameters = new_parameters, .parameter_number = combined_length, .body = lambda_content->body};
+
+      convert_de_bruijn_index(&new);
+
+      for (int i = 0; i < combined_length; i++) free(new_parameters[i]);
+      free(new_parameters);     
+    }
   }
 }
