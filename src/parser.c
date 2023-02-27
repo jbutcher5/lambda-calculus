@@ -158,7 +158,7 @@ void convert_de_bruijn_index(LambdaContent *lambda) {
           ParameterContent *content = malloc(sizeof(ParameterContent));
           content->value = j;
           content->name = calloc(NODE_BUFFER_DEFAULT_SIZE, sizeof(char));
-          memcpy(content->name, lambda->parameters[j], NODE_BUFFER_DEFAULT_SIZE+1); 
+          strcpy(content->name, lambda->parameters[j]);
           lambda->body.ast[i] = (Node){Parameter, content};
         }
       }
@@ -166,31 +166,19 @@ void convert_de_bruijn_index(LambdaContent *lambda) {
       LambdaContent *lambda_content = (LambdaContent *)node.content;
       LambdaContent new;
 
-      /* TODO: Check if the memory allocatoins are actually required
-         here for the ParameterContent::name, could be a (char **) */
-
       int combined_length = lambda_content->parameter_number + lambda->parameter_number;      
       char **new_parameters = malloc(sizeof(char)*combined_length);
 
-      for (int i = 0; i < lambda->parameter_number; i++) {
-        char *parameter = malloc(sizeof(char)*NODE_BUFFER_DEFAULT_SIZE);
-        
-        memcpy(parameter, lambda->parameters[i], NODE_BUFFER_DEFAULT_SIZE+1);
-        new_parameters[i] = parameter;
-      }
+      for (int i = 0; i < lambda->parameter_number; i++)
+        new_parameters[i] = lambda->parameters[i];
 
-      for (int i = 0; i < lambda_content->parameter_number; i++) {
-        char *parameter = malloc(sizeof(char)*NODE_BUFFER_DEFAULT_SIZE);
-      
-        memcpy(parameter, lambda_content->parameters[i], NODE_BUFFER_DEFAULT_SIZE+1);
-        new_parameters[i + lambda->parameter_number] = parameter;        
-      }
+      for (int i = 0; i < lambda_content->parameter_number; i++)
+        new_parameters[i + lambda->parameter_number] = lambda_content->parameters[i];        
 
       new = (LambdaContent){.parameters = new_parameters, .parameter_number = combined_length, .body = lambda_content->body};
 
       convert_de_bruijn_index(&new);
 
-      for (int i = 0; i < combined_length; i++) free(new_parameters[i]);
       free(new_parameters);     
     }
   }
