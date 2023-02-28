@@ -50,7 +50,7 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
       content->parameters = parameters;
       content->body = lambda;
 
-      convert_de_bruijn_index(content);
+      convert_de_bruijn_index(content, 0, NULL);
       
       buffer[j] = (Node){Lambda, content};
       j++;
@@ -147,7 +147,7 @@ void print_ast(ParserResult result) {
   free(buffer);
 }
 
-void convert_de_bruijn_index(LambdaContent *lambda) {
+void convert_de_bruijn_index(LambdaContent *lambda, int offset, LambdaContent *parent) {
   for (int i = 0; i < lambda->body.size; i++) {
     const Node node = lambda->body.ast[i];
 
@@ -156,8 +156,10 @@ void convert_de_bruijn_index(LambdaContent *lambda) {
         if (!strcmp(lambda->parameters[j], *(NT_IdentContent*)node.content)) {
           free(node.content);
           ParameterContent *content = malloc(sizeof(ParameterContent));
-          content->value = j;
+          content->value = j + offset;
           content->name = calloc(NODE_BUFFER_DEFAULT_SIZE, sizeof(char));
+          content->parent = parent;
+          
           strcpy(content->name, lambda->parameters[j]);
           lambda->body.ast[i] = (Node){Parameter, content};
         }
@@ -165,21 +167,13 @@ void convert_de_bruijn_index(LambdaContent *lambda) {
     } else if (node.type == Lambda) {
       LambdaContent *lambda_content = (LambdaContent *)node.content;
       LambdaContent new;
-
-      int combined_length = lambda_content->parameter_number + lambda->parameter_number;      
-      char **new_parameters = malloc(sizeof(char)*combined_length);
-
-      for (int i = 0; i < lambda->parameter_number; i++)
-        new_parameters[i] = lambda->parameters[i];
-
-      for (int i = 0; i < lambda_content->parameter_number; i++)
-        new_parameters[i + lambda->parameter_number] = lambda_content->parameters[i];        
-
-      new = (LambdaContent){.parameters = new_parameters, .parameter_number = combined_length, .body = lambda_content->body};
-
-      convert_de_bruijn_index(&new);
-
-      free(new_parameters);     
+  
+      new = (LambdaContent){.parameters = lambda->parameters, .parameter_number = lambda->parameter_number, .body = lambda_content->body};
+      convert_de_bruijn_index(&new, 0, lambda);
+    
+      new.parameters = lambda_content->parameters;
+      new.parameter_number = lambda_content->parameter_number;
+      convert_de_bruijn_index(&new, lambda->parameter_number, NULL);
     }
   }
 }
