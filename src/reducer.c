@@ -37,7 +37,7 @@ void apply(LambdaContent *lambda, Node *argument) {
   _apply(lambda, lambda, argument);
 }
 
-void beta_reduction(ParserResult *parsed) {
+int beta_reduction(ParserResult *parsed) {
   for (int i = 0; i < parsed->size; i++) {
     Node *node = parsed->ast + i;
     
@@ -80,7 +80,9 @@ void beta_reduction(ParserResult *parsed) {
         }
       }
 
-      return;
+      return 1;
     }
-  }  
+  }
+
+  return 0;
 }

@@ -9,10 +9,9 @@ int main() {
   LexerResult lexed = lexer(text);
   ParserResult parsed = parser(lexed.buffer, lexed.size, text, NULL);
 
-  beta_reduction(&parsed);
-  beta_reduction(&parsed);
-
-  print_ast(parsed);
+  do {
+    print_ast(parsed);
+  } while (beta_reduction(&parsed));
 
   return 0;
 }
