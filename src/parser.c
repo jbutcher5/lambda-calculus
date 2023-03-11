@@ -103,6 +103,9 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
   } else if (node->type == Parameter) {
     ParameterContent *parameter_content = (ParameterContent *)node->content;
     strcpy(buffer, parameter_content->name);
+  } else {
+    printf("Error: Unkown type (%d)\n", node->type);
+    exit(1);
   }
 
   return buffer;

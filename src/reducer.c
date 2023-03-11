@@ -1,5 +1,6 @@
 #include "reducer.h"
 #include "parser.h"
+#include "utils.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +13,8 @@ void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
       ParameterContent *parameter = (ParameterContent*)node->content;
     
       if (!parameter->value && (parameter->parent == parent || parameter->parent == NULL)) { 
-        *node = *argument;
+        // TODO: might need to free argument after use.
+        *node = clone_node(*argument);
       }
       
       else if (parameter->parent == parent) {
