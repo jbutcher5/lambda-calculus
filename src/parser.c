@@ -12,11 +12,6 @@ ParserResult parser(LexerToken *tokens, int size, const char *text, int *i) {
   Node *buffer = calloc(sizeof(Node), NODE_BUFFER_DEFAULT_SIZE);
   int j = 0;
   
-  if (!i) {
-    i = (int*)malloc(sizeof(int)); 
-    *i = 0;
-  }
-  
   while (*i < size) {
     const LexerToken token = tokens[*i];
     if (token.type == TT_Ident) {

@@ -6,8 +6,11 @@
 
 int main() {
   const char *text = "(\\x -> x x) (\\x -> x x)";
+
+  int i = 0;
+  
   LexerResult lexed = lexer(text);
-  ParserResult parsed = parser(lexed.buffer, lexed.size, text, NULL);
+  ParserResult parsed = parser(lexed.buffer, lexed.size, text, &i);
 
   do {
     print_ast(parsed);

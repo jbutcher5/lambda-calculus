@@ -13,7 +13,7 @@ void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
       ParameterContent *parameter = (ParameterContent*)node->content;
     
       if (!parameter->value && (parameter->parent == parent || parameter->parent == NULL)) { 
-        // TODO: might need to free argument after use.
+        free_node(node);
         *node = clone_node(*argument);
       }
       
