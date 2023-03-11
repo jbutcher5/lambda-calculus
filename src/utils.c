@@ -93,7 +93,7 @@ Node _clone_node(Node node, LambdaContent *parent) {
 
     new_node = (Node){.type = Lambda, .content = new_content};
   } else {
-    printf("Error: Cannot clone node of type (%d)", node.type); 
+    printf("Error: Cannot clone node of type (%d)\n", node.type); 
     exit(1);
   }
 
@@ -102,4 +102,26 @@ Node _clone_node(Node node, LambdaContent *parent) {
 
 Node clone_node(Node node) {
   return _clone_node(node, NULL);
+}
+
+void free_node(Node *node) {
+  if (node->type == Lambda) {
+    LambdaContent *content = (LambdaContent*)node->content;
+
+    for (int i = 0; i < content->parameter_number; i++)
+      free(content->parameters[i]);
+
+    free(content);
+    free(content->body.ast);
+  } else if (node->type == NT_Ident) {
+    NT_IdentContent *content = (NT_IdentContent*)node->content;
+
+    free(*content);
+    free(content);
+  } else if (node->type == Parameter) {
+    ParameterContent *content = (ParameterContent*)node->content;
+
+    free(content->name);
+    free(content);
+  }
 }

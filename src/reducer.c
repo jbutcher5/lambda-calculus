@@ -47,6 +47,7 @@ int beta_reduction(ParserResult *parsed) {
       LambdaContent *lambda = node->content;
       
       apply(node->content, node + 1);
+      free_node(node + 1);
       
       if (!lambda->parameter_number) {
         if (lambda->body.size == 2) {
