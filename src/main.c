@@ -13,7 +13,7 @@ int main() {
   ParserResult parsed = parser(lexed.buffer, lexed.size, text, &i);
 
   do {
-    print_ast(parsed);
+    //print_ast(parsed);
   } while (beta_reduction(&parsed));
 
   return 0;
