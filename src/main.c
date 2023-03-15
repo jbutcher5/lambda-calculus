@@ -5,7 +5,7 @@
 #include "reducer.h"
 
 int main() {
-  const char *text = "(\\x -> x x) (\\x -> x x)";
+  const char *text = "(\\x -> x x) a";
 
   int i = 0;
   
@@ -13,7 +13,7 @@ int main() {
   ParserResult parsed = parser(lexed.buffer, lexed.size, text, &i);
 
   do {
-    //print_ast(parsed);
+    print_ast(parsed);
   } while (beta_reduction(&parsed));
 
   return 0;

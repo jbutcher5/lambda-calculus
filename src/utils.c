@@ -51,9 +51,9 @@ Node _clone_node(Node node, LambdaContent *parent) {
 
     new_node = (Node){.type = Parameter, .content = new_content};
   } else if (node.type == NT_Ident) {
-    NT_IdentContent content = *(NT_IdentContent*)node.content;
+    char *content = node.content;
 
-    char *new_content = malloc(sizeof(char)*(strlen(content) + 1));
+    char *new_content = calloc(sizeof(char), (strlen(content) + 1));
     strcpy(new_content, content);
   
     new_node = (Node){.type = NT_Ident, .content = new_content};
@@ -114,9 +114,8 @@ void free_node(Node *node) {
     free(content->body.ast);
     free(content);
   } else if (node->type == NT_Ident) {
-    NT_IdentContent *content = (NT_IdentContent*)node->content;
+    char *content = node->content;
 
-    free(*content);
     free(content);
   } else if (node->type == Parameter) {
     ParameterContent *content = (ParameterContent*)node->content;

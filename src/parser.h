@@ -25,8 +25,6 @@ typedef struct {
   ParserResult body;
 } LambdaContent;
 
-typedef char * NT_IdentContent;
-
 typedef struct {
   char *assignee;
   Node *body;
