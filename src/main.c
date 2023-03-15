@@ -5,7 +5,7 @@
 #include "reducer.h"
 
 int main() {
-  const char *text = "(\\x -> x x) a";
+  const char *text = "((\\x -> a) o)";
 
   int i = 0;
   
