@@ -2,28 +2,32 @@
 #include "parser.h"
 #include "utils.h"
 
-#include <stdlib.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {  
+#define MAX_ITER_DEPTH INT_MAX
+
+void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
   for (int i = 0; i < lambda->body.size; i++) {
     Node *node = lambda->body.ast + i;
 
     if (node->type == Parameter) {
-      ParameterContent *parameter = (ParameterContent*)node->content;
-    
-      if (!parameter->value && (parameter->parent == parent || parameter->parent == NULL)) { 
+      ParameterContent *parameter = (ParameterContent *)node->content;
+
+      if (!parameter->value &&
+          (parameter->parent == parent || parameter->parent == NULL)) {
         free_node(node);
         *node = clone_node(*argument);
       }
-      
+
       else if (parameter->parent == parent) {
         parameter->value--;
-      }    
+      }
     }
 
     else if (node->type == Lambda) {
-      _apply((LambdaContent*)node->content, parent, argument);
+      _apply((LambdaContent *)node->content, parent, argument);
     }
   }
 
@@ -40,27 +44,32 @@ void apply(LambdaContent *lambda, Node *argument) {
 }
 
 int beta_reduction(ParserResult *parsed) {
+  static ParserResult *last_expr = NULL;
+  static int iteration = 0;
+
+  if (!last_expr)
+    last_expr = parsed;
+
   for (int i = 0; i < parsed->size; i++) {
     Node *node = parsed->ast + i;
-    
+
     if (node->type == Lambda && i < parsed->size - 1) {
       LambdaContent *lambda = node->content;
-      
+
       apply(node->content, node + 1);
       free_node(node + 1);
-      
+
       if (!lambda->parameter_number) {
         if (lambda->body.size == 2) {
           *node = lambda->body.ast[0];
-          *(node+1) = lambda->body.ast[1];
+          *(node + 1) = lambda->body.ast[1];
 
-          //free(lambda->parameters);
+          // free(lambda->parameters);
           free(lambda->body.ast);
 
           // TODO: Check each item of the ast is freed
-        }
-        else {
-          int new_size = parsed->size-2+lambda->body.size;
+        } else {
+          int new_size = parsed->size - 2 + lambda->body.size;
           Node *new_ast = calloc(sizeof(Node), new_size);
 
           // TODO: All of these nodes we pass over need freed
@@ -73,14 +82,23 @@ int beta_reduction(ParserResult *parsed) {
             new_ast[j] = lambda->body.ast[k];
           }
 
-          for (int j = i + lambda->body.size, k = i + 2; k < parsed->size; j++, k++) {
+          for (int j = i + lambda->body.size, k = i + 2; k < parsed->size;
+               j++, k++) {
             new_ast[j] = parsed->ast[k];
           }
 
           parsed->ast = new_ast;
           parsed->size = new_size;
-
         }
+      }
+
+      if (last_expr == parsed && iteration > MAX_ITER_DEPTH) {
+        return 0;
+      } else if (last_expr == parsed) {
+        iteration++;
+      } else {
+        iteration = 0;
+        last_expr = parsed;
       }
 
       return 1;
