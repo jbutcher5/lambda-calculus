@@ -17,12 +17,12 @@ typedef struct {
 typedef struct {
   Node *ast;
   int size;
-} ParserResult;
+} Expr;
 
 typedef struct {
   char **parameters;
   int parameter_number;
-  ParserResult body;
+  Expr body;
 } LambdaContent;
 
 typedef struct {
@@ -36,9 +36,9 @@ typedef struct {
   LambdaContent *parent;
 } ParameterContent;
 
-ParserResult parser(LexerToken *tokens, int size, const char *text, int *i);
+Expr parser(LexerToken *tokens, int size, const char *text, int *i);
 char *display_node(Node *node, char *buffer, int buffer_size);
 char *display_parameters(char **parameters, int parameter_number);
-void print_ast(ParserResult result);
-void convert_de_bruijn_index(LambdaContent *lambda, int offset, LambdaContent *parent);
-
+void print_ast(Expr result);
+void convert_de_bruijn_index(LambdaContent *lambda, int offset,
+                             LambdaContent *parent);

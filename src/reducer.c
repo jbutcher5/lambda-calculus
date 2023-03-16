@@ -2,11 +2,10 @@
 #include "parser.h"
 #include "utils.h"
 
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_ITER_DEPTH INT_MAX
+#define MAX_ITER_DEPTH 64
 
 void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
   for (int i = 0; i < lambda->body.size; i++) {
@@ -43,17 +42,17 @@ void apply(LambdaContent *lambda, Node *argument) {
   _apply(lambda, lambda, argument);
 }
 
-int beta_reduction(ParserResult *parsed) {
-  static ParserResult *last_expr = NULL;
+int beta_reduction(Expr *expr) {
+  static Expr *last_expr = NULL;
   static int iteration = 0;
 
   if (!last_expr)
-    last_expr = parsed;
+    last_expr = expr;
 
-  for (int i = 0; i < parsed->size; i++) {
-    Node *node = parsed->ast + i;
+  for (int i = 0; i < expr->size; i++) {
+    Node *node = expr->ast + i;
 
-    if (node->type == Lambda && i < parsed->size - 1) {
+    if (node->type == Lambda && i < expr->size - 1) {
       LambdaContent *lambda = node->content;
 
       apply(node->content, node + 1);
@@ -69,36 +68,36 @@ int beta_reduction(ParserResult *parsed) {
 
           // TODO: Check each item of the ast is freed
         } else {
-          int new_size = parsed->size - 2 + lambda->body.size;
+          int new_size = expr->size - 2 + lambda->body.size;
           Node *new_ast = calloc(sizeof(Node), new_size);
 
           // TODO: All of these nodes we pass over need freed
 
           for (int j = 0; j < i; j++) {
-            new_ast[j] = parsed->ast[j];
+            new_ast[j] = expr->ast[j];
           }
 
           for (int j = i, k = 0; k < lambda->body.size; j++, k++) {
             new_ast[j] = lambda->body.ast[k];
           }
 
-          for (int j = i + lambda->body.size, k = i + 2; k < parsed->size;
+          for (int j = i + lambda->body.size, k = i + 2; k < expr->size;
                j++, k++) {
-            new_ast[j] = parsed->ast[k];
+            new_ast[j] = expr->ast[k];
           }
 
-          parsed->ast = new_ast;
-          parsed->size = new_size;
+          expr->ast = new_ast;
+          expr->size = new_size;
         }
       }
 
-      if (last_expr == parsed && iteration > MAX_ITER_DEPTH) {
+      if (last_expr == expr && iteration > MAX_ITER_DEPTH) {
         return 0;
-      } else if (last_expr == parsed) {
+      } else if (last_expr == expr) {
         iteration++;
       } else {
         iteration = 0;
-        last_expr = parsed;
+        last_expr = expr;
       }
 
       return 1;

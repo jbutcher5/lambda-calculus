@@ -10,11 +10,11 @@ int main() {
   int i = 0;
 
   LexerResult lexed = lexer(text);
-  ParserResult parsed = parser(lexed.buffer, lexed.size, text, &i);
+  Expr expr = parser(lexed.buffer, lexed.size, text, &i);
 
   do {
-    print_ast(parsed);
-  } while (beta_reduction(&parsed));
+    print_ast(expr);
+  } while (beta_reduction(&expr));
 
   return 0;
 }
