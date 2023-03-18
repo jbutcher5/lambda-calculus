@@ -43,6 +43,8 @@ int next_bracket(const LexerToken *tokens, int start, int size) {
 Node _clone_node(Node node, LambdaContent *parent) {
   Node new_node;
 
+  // TODO: Add clone for NT_Expr
+
   if (node.type == Parameter) {
     ParameterContent content = *(ParameterContent *)node.content;
 
@@ -64,7 +66,6 @@ Node _clone_node(Node node, LambdaContent *parent) {
 
     new_node = (Node){.type = NT_Ident, .content = new_content};
   } else if (node.type == Lambda) {
-
     LambdaContent content = *(LambdaContent *)node.content;
 
     LambdaContent *new_content = malloc(sizeof(LambdaContent));
@@ -100,8 +101,21 @@ Node _clone_node(Node node, LambdaContent *parent) {
     new_content->body = new_body;
 
     new_node = (Node){.type = Lambda, .content = new_content};
+  } else if (node.type == NT_Expr) {
+    Expr content = *(Expr *)node.content;
+
+    Expr *new_content = malloc(sizeof(Expr));
+    Node *new_ast = calloc(sizeof(Node), content.size);
+
+    for (int i = 0; i < content.size; i++)
+      new_ast[i] = clone_node(content.ast[i]);
+
+    new_content->size = content.size;
+    new_content->ast = new_ast;
+
+    new_node = (Node){.type = NT_Expr, .content = new_content};
   } else {
-    printf("Error: Cannot clone node of type (%d)\n", node.type);
+    printf("Error: Cannot clone node of type %d\n", node.type);
     exit(1);
   }
 
@@ -128,5 +142,16 @@ void free_node(Node *node) {
 
     free(content->name);
     free(content);
+  } else if (node->type == NT_Expr) {
+    Expr *content = (Expr *)node->content;
+
+    for (int i = 0; i < content->size; i++)
+      free_node(content->ast + i);
+
+    free(content->ast);
+    free(content);
+  } else {
+    printf("Error: Cannot free node of type %d\n", node->type);
+    exit(1);
   }
 }

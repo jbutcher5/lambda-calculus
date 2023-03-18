@@ -3,10 +3,11 @@
 #include "lexer.h"
 
 typedef enum {
-  Lambda,
-  NT_Ident,
-  Assignment,
-  Parameter,
+  Lambda,     // LambdaContent*
+  NT_Ident,   // char*
+  Assignment, // void*
+  Parameter,  // ParameterContent*
+  NT_Expr,    // Expr*
 } NodeType;
 
 typedef struct {
@@ -39,6 +40,7 @@ typedef struct {
 Expr parser(LexerToken *tokens, int size, const char *text, int *i);
 char *display_node(Node *node, char *buffer, int buffer_size);
 char *display_parameters(char **parameters, int parameter_number);
-void print_ast(Expr result);
+char *display_ast(Expr expr);
+void print_ast(Expr expr);
 void convert_de_bruijn_index(LambdaContent *lambda, int offset,
                              LambdaContent *parent);

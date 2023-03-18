@@ -55,10 +55,19 @@ Expr parser(LexerToken *tokens, int size, const char *text, int *i) {
         exit(1);
 
       (*i)++;
+
       Expr brackets = parser(tokens, closing_bracket, text, i);
 
-      for (int k = 0; k < brackets.size; k++, j++)
-        buffer[j] = brackets.ast[k];
+      if (brackets.size == 1) {
+        buffer[j] = brackets.ast[0];
+        j++;
+      } else if (brackets.size > 1) {
+        Expr *content = malloc(sizeof(Expr));
+        *content = brackets;
+
+        buffer[j] = (Node){.type = NT_Expr, .content = content};
+        j++;
+      }
     } else {
       (*i)++;
     }
@@ -98,6 +107,8 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
   } else if (node->type == Parameter) {
     ParameterContent *parameter_content = (ParameterContent *)node->content;
     strcpy(buffer, parameter_content->name);
+  } else if (node->type == NT_Expr) {
+    snprintf(buffer, buffer_size, "(%s)", display_ast(*(Expr *)node->content));
   } else {
     printf("Error: Unkown type (%d)\n", node->type);
     exit(1);
@@ -119,20 +130,17 @@ char *display_parameters(char **parameters, int parameter_number) {
   return buffer;
 }
 
-void print_ast(Expr result) {
-  if (!result.size)
-    return;
-
-  char *first = display_node(result.ast, NULL, 0);
+char *display_ast(Expr expr) {
+  char *first = display_node(expr.ast, NULL, 0);
   char *buffer = malloc((strlen(first) + 1) * sizeof(char));
   strcpy(buffer, first);
   free(first);
   strcat(buffer, " ");
 
-  for (int i = 1; i < result.size; i++) {
-    char *literal_node = display_node(result.ast + i, NULL, 0);
+  for (int i = 1; i < expr.size; i++) {
+    char *literal_node = display_node(expr.ast + i, NULL, 0);
 
-    if (i + 1 == result.size) {
+    if (i + 1 == expr.size) {
       strcat(buffer, literal_node);
     } else {
       strcat(buffer, literal_node);
@@ -141,6 +149,15 @@ void print_ast(Expr result) {
 
     free(literal_node);
   }
+
+  return buffer;
+}
+
+void print_ast(Expr expr) {
+  if (!expr.size)
+    return;
+
+  char *buffer = display_ast(expr);
 
   puts(buffer);
   free(buffer);
