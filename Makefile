@@ -1,15 +1,15 @@
-CC      = clang++
+CC      = clang
 INCLUDE = src
 OBJ     = build
 SRC     = src
 SRCS    = $(SRC)/main.c
-SRCS    += $(wildcard $(SRC)/*.c)
-SRCS    += $(wildcard $(SRC)/*/*.c)
-SRCS    += $(wildcard $(SRC)/*/*/*.c)
+SRCS    += $(shell find $(SRC) -type f -name '*.c')
 OBJS    = $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
 EXE     = lci
 CFLAGS  = -I$(INCLUDE) -std=c17 -pedantic
 LDLIBS  = -lm
+
+.PHONY: clean
 
 $(OBJ)/%.o: $(SRC)/%.c
 	@mkdir -p "$(@D)"
