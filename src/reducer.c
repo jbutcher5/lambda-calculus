@@ -61,7 +61,7 @@ int beta_reduction(Expr *expr) {
       if (!lambda->parameter_number) {
         if (lambda->body.size == 2) {
           *node = lambda->body.ast[0];
-          *(node + 1) = lambda->body.ast[1];
+          node[1] = lambda->body.ast[1];
 
           // free(lambda->parameters);
           free(lambda->body.ast);
@@ -100,6 +100,29 @@ int beta_reduction(Expr *expr) {
         last_expr = expr;
       }
 
+      return 1;
+    }
+  }
+
+  // Evaluate brackets if all non-bracket stuff is beta-normal
+
+  for (int i = 0; i < expr->size; i++) {
+    Node *node = expr->ast + i;
+    if (node->type != NT_Expr)
+      continue;
+    Expr *content = node->content;
+
+    int result = beta_reduction(content);
+
+    if (content->size == 1) {
+      Node inner = clone_node(*content->ast);
+      free_node(node);
+      *node = inner;
+
+      return 1;
+    }
+
+    if (result) {
       return 1;
     }
   }

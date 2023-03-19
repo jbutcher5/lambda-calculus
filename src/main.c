@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 int main() {
-  const char *text = "(\\x -> x) ((\\y -> y y) (\\z -> z z))";
+  const char *text = "(\\x -> x) ((\\y -> z) (a))";
 
   int i = 0;
 
