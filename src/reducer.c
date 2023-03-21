@@ -8,6 +8,8 @@
 #define MAX_ITER_DEPTH 64
 
 void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
+  Node new_node = clone_node(*argument);
+
   for (int i = 0; i < lambda->body.size; i++) {
     Node *node = lambda->body.ast + i;
 
@@ -17,15 +19,13 @@ void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
       if (!parameter->value &&
           (parameter->parent == parent || parameter->parent == NULL)) {
         free_node(node);
-        *node = clone_node(*argument);
+        *node = new_node;
       }
 
       else if (parameter->parent == parent) {
         parameter->value--;
       }
-    }
-
-    else if (node->type == Lambda) {
+    } else if (node->type == Lambda) {
       _apply((LambdaContent *)node->content, parent, argument);
     }
   }
@@ -69,9 +69,7 @@ int beta_reduction(Expr *expr) {
           // TODO: Check each item of the ast is freed
         } else {
           int new_size = expr->size - 2 + lambda->body.size;
-          Node *new_ast = calloc(sizeof(Node), new_size);
-
-          // TODO: All of these nodes we pass over need freed
+          Node *new_ast = calloc(new_size, sizeof(Node));
 
           for (int j = 0; j < i; j++) {
             new_ast[j] = expr->ast[j];
@@ -86,9 +84,27 @@ int beta_reduction(Expr *expr) {
             new_ast[j] = expr->ast[k];
           }
 
+          free(expr->ast);
+
           expr->ast = new_ast;
           expr->size = new_size;
         }
+      } else {
+        Node *new_ast = calloc(expr->size - 1, sizeof(Node));
+
+        for (int j = 0; j <= i; j++) {
+          new_ast[j] = expr->ast[j];
+        }
+
+        for (int j = i + 1; j < expr->size - 1; j++) {
+          new_ast[j] = expr->ast[j + 1];
+        }
+
+        free(expr->ast);
+
+        expr->ast = new_ast;
+        expr->size--;
+        i++;
       }
 
       if (last_expr == expr && iteration > MAX_ITER_DEPTH) {

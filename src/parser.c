@@ -9,13 +9,13 @@
 #define NODE_BUFFER_DEFAULT_SIZE 16
 
 Expr parser(LexerToken *tokens, int size, const char *text, int *i) {
-  Node *buffer = calloc(sizeof(Node), NODE_BUFFER_DEFAULT_SIZE);
+  Node *buffer = calloc(NODE_BUFFER_DEFAULT_SIZE, sizeof(Node));
   int j = 0;
 
   while (*i < size) {
     const LexerToken token = tokens[*i];
     if (token.type == TT_Ident) {
-      char *content = (char *)calloc(sizeof(char), (token.end - token.end) + 1);
+      char *content = (char *)calloc((token.end - token.end) + 1, sizeof(char));
 
       content = slice_string(text, token.start, token.end + 1);
       buffer[j] = (Node){NT_Ident, content};
@@ -132,7 +132,8 @@ char *display_parameters(char **parameters, int parameter_number) {
 
 char *display_ast(Expr expr) {
   char *first = display_node(expr.ast, NULL, 0);
-  char *buffer = malloc((strlen(first) + 1) * sizeof(char));
+  char *buffer = malloc((strlen(first) + 2) * sizeof(char));
+  int buffer_size = strlen(first) + 2;
   strcpy(buffer, first);
   free(first);
   strcat(buffer, " ");
@@ -141,8 +142,12 @@ char *display_ast(Expr expr) {
     char *literal_node = display_node(expr.ast + i, NULL, 0);
 
     if (i + 1 == expr.size) {
+      buffer_size += strlen(literal_node);
+      buffer = realloc(buffer, buffer_size);
       strcat(buffer, literal_node);
     } else {
+      buffer_size += strlen(literal_node) + 1;
+      buffer = realloc(buffer, buffer_size);
       strcat(buffer, literal_node);
       strcat(buffer, " ");
     }

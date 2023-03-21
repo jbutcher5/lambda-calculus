@@ -48,7 +48,7 @@ Node _clone_node(Node node, LambdaContent *parent) {
   if (node.type == Parameter) {
     ParameterContent content = *(ParameterContent *)node.content;
 
-    char *new_str = calloc(sizeof(char), strlen(content.name) + 1);
+    char *new_str = calloc(strlen(content.name) + 1, sizeof(char));
     strcpy(new_str, content.name);
 
     ParameterContent *new_content = malloc(sizeof(ParameterContent));
@@ -61,7 +61,7 @@ Node _clone_node(Node node, LambdaContent *parent) {
   } else if (node.type == NT_Ident) {
     char *content = node.content;
 
-    char *new_content = calloc(sizeof(char), (strlen(content) + 1));
+    char *new_content = calloc((strlen(content) + 1), sizeof(char));
     strcpy(new_content, content);
 
     new_node = (Node){.type = NT_Ident, .content = new_content};
@@ -77,7 +77,7 @@ Node _clone_node(Node node, LambdaContent *parent) {
 
     for (int i = 0; i < content.parameter_number; i++) {
       new_parameters[i] =
-          calloc(sizeof(char), strlen(content.parameters[i]) + 1);
+          calloc(strlen(content.parameters[i]) + 1, sizeof(char));
       strcpy(new_parameters[i], content.parameters[i]);
     }
 
@@ -105,7 +105,7 @@ Node _clone_node(Node node, LambdaContent *parent) {
     Expr content = *(Expr *)node.content;
 
     Expr *new_content = malloc(sizeof(Expr));
-    Node *new_ast = calloc(sizeof(Node), content.size);
+    Node *new_ast = calloc(content.size, sizeof(Node));
 
     for (int i = 0; i < content.size; i++)
       new_ast[i] = clone_node(content.ast[i]);
