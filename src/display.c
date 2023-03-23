@@ -33,8 +33,7 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
     buffer = realloc(buffer, sizeof(char) * strlen(ident_content) + 1);
     strcpy(buffer, ident_content);
   } else if (node->type == Parameter) {
-    ParameterContent *parameter_content = (ParameterContent *)node->content;
-    strcpy(buffer, parameter_content->name);
+    strcpy(buffer, node->content);
   } else if (node->type == NT_Expr) {
     snprintf(buffer, buffer_size, "(%s)", display_ast(*(Expr *)node->content));
   } else {

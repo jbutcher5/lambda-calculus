@@ -40,24 +40,13 @@ int next_bracket(const LexerToken *tokens, int start, int size) {
   return -1;
 }
 
-Node _clone_node(Node node, LambdaContent *parent) {
+Node clone_node(Node node) {
   Node new_node;
 
   // TODO: Add clone for NT_Expr
 
   if (node.type == Parameter) {
-    ParameterContent content = *(ParameterContent *)node.content;
-
-    char *new_str = calloc(strlen(content.name) + 1, sizeof(char));
-    strcpy(new_str, content.name);
-
-    ParameterContent *new_content = malloc(sizeof(ParameterContent));
-
-    new_content->value = content.value;
-    new_content->parent = content.parent;
-    new_content->name = new_str;
-
-    new_node = (Node){.type = Parameter, .content = new_content};
+    new_node = (Node){.type = Parameter, .content = (char *)node.content};
   } else if (node.type == NT_Ident) {
     char *content = node.content;
 
@@ -69,9 +58,6 @@ Node _clone_node(Node node, LambdaContent *parent) {
     LambdaContent content = *(LambdaContent *)node.content;
 
     LambdaContent *new_content = malloc(sizeof(LambdaContent));
-
-    if (parent == NULL)
-      parent = new_content;
 
     char **new_parameters = malloc(sizeof(char *) * content.parameter_number);
 
@@ -91,16 +77,19 @@ Node _clone_node(Node node, LambdaContent *parent) {
       Node node = content.body.ast[i];
 
       if (node.type == Parameter) {
-        ParameterContent *content = (ParameterContent *)node.content;
-        content->parent = parent;
-      }
+        char *name = calloc(strlen(node.content) + 1, sizeof(char));
+        strcpy(name, node.content);
 
-      new_body.ast[i] = _clone_node(node, parent);
+        new_body.ast[i] = (Node){.type = NT_Ident, .content = name};
+      } else {
+        new_body.ast[i] = clone_node(node);
+      }
     }
 
     new_content->body = new_body;
 
     new_node = (Node){.type = Lambda, .content = new_content};
+    convert_de_bruijn_index(new_content, &new_content->body);
   } else if (node.type == NT_Expr) {
     Expr content = *(Expr *)node.content;
 
@@ -122,8 +111,6 @@ Node _clone_node(Node node, LambdaContent *parent) {
   return new_node;
 }
 
-Node clone_node(Node node) { return _clone_node(node, NULL); }
-
 void free_node(Node *node) {
   if (node->type == Lambda) {
     LambdaContent *content = (LambdaContent *)node->content;
@@ -138,10 +125,9 @@ void free_node(Node *node) {
 
     free(content);
   } else if (node->type == Parameter) {
-    ParameterContent *content = (ParameterContent *)node->content;
+    // Nothing to do here content is dependent on pointer to parameter and
+    // lambda should always outlive this node
 
-    free(content->name);
-    free(content);
   } else if (node->type == NT_Expr) {
     Expr *content = (Expr *)node->content;
 
@@ -153,5 +139,34 @@ void free_node(Node *node) {
   } else {
     printf("Error: Cannot free node of type %d\n", node->type);
     exit(1);
+  }
+}
+
+void convert_de_bruijn_index(LambdaContent *lambda, Expr *body) {
+  for (int i = 0; i < body->size; i++) {
+    Node *node = body->ast + i;
+
+    if (node->type == NT_Ident) {
+      for (int j = 0; j < lambda->parameter_number; j++) {
+        if (!strcmp((char *)node->content, lambda->parameters[j])) {
+          free(node->content);
+
+          *node = (Node){.type = Parameter, .content = lambda->parameters[j]};
+          break;
+        }
+      }
+    } else if (node->type == Lambda) {
+      LambdaContent *content = node->content;
+
+      convert_de_bruijn_index(lambda, &content->body);
+      convert_de_bruijn_index(content, &content->body);
+    } else if (node->type == Parameter && &lambda->body != body) {
+      for (int j = 0; j < lambda->parameter_number; j++) {
+        if (!strcmp((char *)node->content, lambda->parameters[j])) {
+          *node = (Node){.type = Parameter, .content = lambda->parameters[j]};
+          break;
+        }
+      }
+    }
   }
 }

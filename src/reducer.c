@@ -7,39 +7,32 @@
 
 #define MAX_ITER_DEPTH 64
 
-void _apply(LambdaContent *lambda, LambdaContent *parent, Node *argument) {
+void _apply(LambdaContent *parent, LambdaContent *lambda, Node *argument) {
   Node new_node = clone_node(*argument);
 
   for (int i = 0; i < lambda->body.size; i++) {
     Node *node = lambda->body.ast + i;
 
     if (node->type == Parameter) {
-      ParameterContent *parameter = (ParameterContent *)node->content;
-
-      if (!parameter->value &&
-          (parameter->parent == parent || parameter->parent == NULL)) {
+      if ((char *)node->content == parent->parameters[0]) {
         free_node(node);
         *node = new_node;
       }
-
-      else if (parameter->parent == parent) {
-        parameter->value--;
-      }
     } else if (node->type == Lambda) {
-      _apply((LambdaContent *)node->content, parent, argument);
+      _apply(parent, node->content, argument);
     }
   }
 
-  if (lambda == parent) {
-    lambda->parameter_number--;
-    lambda->parameters++;
-
-    // TODO: First element in lambda->parameters is leaked here. Solve later ig
+  if (parent == lambda) {
+    parent->parameter_number--;
+    parent->parameters++;
   }
+
+  // TODO: First element in lambda->parameters is leaked here. Solve later ig
 }
 
-void apply(LambdaContent *lambda, Node *argument) {
-  _apply(lambda, lambda, argument);
+void apply(LambdaContent *lambda, Node *arguement) {
+  _apply(lambda, lambda, arguement);
 }
 
 int beta_reduction(Expr *expr) {
