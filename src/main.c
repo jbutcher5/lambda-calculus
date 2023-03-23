@@ -2,6 +2,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "reducer.h"
+#include "utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,13 @@ int main() {
   do {
     print_ast(expr);
   } while (beta_reduction(&expr));
+
+  free(lexed.buffer);
+
+  for (int i = 0; i < expr.size; i++)
+    free_node(expr.ast + i);
+
+  free(expr.ast);
 
   return 0;
 }
