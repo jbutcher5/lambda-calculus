@@ -18,11 +18,11 @@ int main() {
   LexerResult lexed = lexer(text);
   Expr expr = parser(lexed.buffer, lexed.size, text, &i);
 
+  free(lexed.buffer);
+
   do {
     print_ast(expr);
   } while (beta_reduction(&expr));
-
-  free(lexed.buffer);
 
   for (int i = 0; i < expr.size; i++)
     free_node(expr.ast + i);

@@ -15,9 +15,7 @@ Expr parser(LexerToken *tokens, int size, const char *text, int *i) {
   while (*i < size) {
     const LexerToken token = tokens[*i];
     if (token.type == TT_Ident) {
-      char *content = (char *)calloc((token.end - token.end) + 1, sizeof(char));
-
-      content = slice_string(text, token.start, token.end + 1);
+      char *content = slice_string(text, token.start, token.end + 1);
       buffer[j] = (Node){NT_Ident, content};
 
       j++;
