@@ -11,7 +11,7 @@
 // false: (\\x y -> y)
 
 int main() {
-  const char *text = "(\\x y -> x y (\\x y -> x)) (\\x y -> x) (\\x y -> x)";
+  const char *text = "(\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)";
 
   int i = 0;
 

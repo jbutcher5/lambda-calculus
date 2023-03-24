@@ -69,6 +69,7 @@ Node clone_node(Node node) {
 
     new_content->parameters = new_parameters;
     new_content->parameter_number = content.parameter_number;
+    new_content->initial_para_num = content.initial_para_num;
 
     Expr new_body = {.ast = malloc(sizeof(Node) * content.body.size),
                      .size = content.body.size};
@@ -118,7 +119,8 @@ void free_node(Node *node) {
     for (int i = 0; i < content->parameter_number; i++)
       free(content->parameters[i]);
 
-    free(content->parameters);
+    free(content->parameters -
+         (content->initial_para_num - content->parameter_number));
     free(content->body.ast);
     free(content);
   } else if (node->type == NT_Ident) {

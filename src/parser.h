@@ -23,6 +23,7 @@ typedef struct {
 typedef struct {
   char **parameters;
   int parameter_number;
+  int initial_para_num;
   Expr body;
 } LambdaContent;
 

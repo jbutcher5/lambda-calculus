@@ -25,8 +25,6 @@ void _apply(LambdaContent *parent, LambdaContent *lambda, Node *argument) {
     parent->parameter_number--;
     parent->parameters++;
   }
-
-  // TODO: First element in lambda->parameters is leaked here. Solve later ig
 }
 
 void apply(LambdaContent *lambda, Node *arguement) {

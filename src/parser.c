@@ -42,6 +42,7 @@ Expr parser(LexerToken *tokens, int size, const char *text, int *i) {
       content->parameter_number = parameter_count;
       content->parameters = parameters;
       content->body = lambda;
+      content->initial_para_num = parameter_count;
 
       convert_de_bruijn_index(content, &content->body);
 
