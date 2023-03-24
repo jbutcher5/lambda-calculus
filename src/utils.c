@@ -161,7 +161,7 @@ void convert_de_bruijn_index(LambdaContent *lambda, Expr *body) {
 
       convert_de_bruijn_index(lambda, &content->body);
       convert_de_bruijn_index(content, &content->body);
-    } else if (node->type == Parameter && &lambda->body != body) {
+    } else if (node->type == Parameter) {
       for (int j = 0; j < lambda->parameter_number; j++) {
         if (!strcmp((char *)node->content, lambda->parameters[j])) {
           *node = (Node){.type = Parameter, .content = lambda->parameters[j]};
