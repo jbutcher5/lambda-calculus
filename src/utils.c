@@ -118,6 +118,7 @@ void free_node(Node *node) {
     for (int i = 0; i < content->parameter_number; i++)
       free(content->parameters[i]);
 
+    free(content->parameters);
     free(content->body.ast);
     free(content);
   } else if (node->type == NT_Ident) {

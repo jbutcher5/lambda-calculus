@@ -8,15 +8,13 @@
 #define MAX_ITER_DEPTH 64
 
 void _apply(LambdaContent *parent, LambdaContent *lambda, Node *argument) {
-  Node new_node = clone_node(*argument);
-
   for (int i = 0; i < lambda->body.size; i++) {
     Node *node = lambda->body.ast + i;
 
     if (node->type == Parameter) {
       if ((char *)node->content == parent->parameters[0]) {
         free_node(node);
-        *node = new_node;
+        *node = clone_node(*argument);
       }
     } else if (node->type == Lambda) {
       _apply(parent, node->content, argument);

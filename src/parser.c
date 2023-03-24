@@ -59,6 +59,8 @@ Expr parser(LexerToken *tokens, int size, const char *text, int *i) {
       if (brackets.size == 1) {
         buffer[j] = brackets.ast[0];
         j++;
+
+        free(brackets.ast);
       } else if (brackets.size > 1) {
         Expr *content = malloc(sizeof(Expr));
         *content = brackets;
