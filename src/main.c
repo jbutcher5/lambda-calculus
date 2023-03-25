@@ -10,8 +10,10 @@
 // true: (\\x y -> x)
 // false: (\\x y -> y)
 
+// And False False: (\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)
+
 int main() {
-  const char *text = "(\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)";
+  const char *text = "(\\x -> x) a";
 
   int i = 0;
 

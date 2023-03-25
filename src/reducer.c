@@ -44,18 +44,18 @@ int beta_reduction(Expr *expr) {
     if (node->type == Lambda && i < expr->size - 1) {
       LambdaContent *lambda = node->content;
 
-      apply(node->content, node + 1);
+      apply(lambda, node + 1);
       free_node(node + 1);
 
       if (!lambda->parameter_number) {
         if (lambda->body.size == 2) {
-          *node = lambda->body.ast[0];
-          node[1] = lambda->body.ast[1];
+          Node first = clone_node(lambda->body.ast[0]);
+          Node second = clone_node(lambda->body.ast[1]);
 
-          // free(lambda->parameters);
-          free(lambda->body.ast);
+          free_node(node);
 
-          // TODO: Check each item of the ast is freed
+          node[0] = first;
+          node[1] = second;
         } else {
           int new_size = expr->size - 2 + lambda->body.size;
           Node *new_ast = calloc(new_size, sizeof(Node));

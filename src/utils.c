@@ -116,11 +116,13 @@ void free_node(Node *node) {
   if (node->type == Lambda) {
     LambdaContent *content = (LambdaContent *)node->content;
 
-    for (int i = 0; i < content->parameter_number; i++)
-      free(content->parameters[i]);
+    char **parameters = content->parameters -
+                        (content->initial_para_num - content->parameter_number);
 
-    free(content->parameters -
-         (content->initial_para_num - content->parameter_number));
+    for (int i = 0; i < content->initial_para_num; i++)
+      free(parameters[i]);
+
+    free(parameters);
     free(content->body.ast);
     free(content);
   } else if (node->type == NT_Ident) {
@@ -152,7 +154,7 @@ void convert_de_bruijn_index(LambdaContent *lambda, Expr *body) {
     if (node->type == NT_Ident) {
       for (int j = 0; j < lambda->parameter_number; j++) {
         if (!strcmp((char *)node->content, lambda->parameters[j])) {
-          free(node->content);
+          free_node(node);
 
           *node = (Node){.type = Parameter, .content = lambda->parameters[j]};
           break;
