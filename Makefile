@@ -14,11 +14,11 @@ LDLIBS  = -lm
 $(OBJ)/%.o: $(SRC)/%.c
 	@mkdir -p "$(@D)"
 	@echo "Compiling: $< -> $@"
-	@clang -c $(CFLAGS) -g $< -o $@
+	@$(CC) -c -g $(CFLAGS) $< -o $@
 
 $(EXE): $(OBJS)
 	@echo "Building final executable: $@"
-	@clang $^ -g $(LDLIBS) -o $@
+	@$(CC) $^ -g $(LDLIBS) -o $@
 
 $(OBJ):
 	mkdir -p $@
