@@ -119,6 +119,9 @@ void free_node(Node *node) {
     char **parameters = content->parameters -
                         (content->initial_para_num - content->parameter_number);
 
+    for (int i = 0; i < content->body.size; i++)
+      free_node(content->body.ast + i);
+
     for (int i = 0; i < content->initial_para_num; i++)
       free(parameters[i]);
 

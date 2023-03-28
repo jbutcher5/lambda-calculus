@@ -73,6 +73,18 @@ int beta_reduction(Expr *expr) {
             new_ast[j] = expr->ast[k];
           }
 
+          LambdaContent *content = (LambdaContent *)node->content;
+
+          char **parameters = content->parameters - (content->initial_para_num -
+                                                     content->parameter_number);
+
+          for (int i = 0; i < content->initial_para_num; i++)
+            free(parameters[i]);
+
+          free(parameters);
+          free(content->body.ast);
+          free(content);
+
           free(expr->ast);
 
           expr->ast = new_ast;
