@@ -13,7 +13,7 @@ void _apply(LambdaContent *parent, LambdaContent *lambda, Node *argument) {
 
     if (node->type == Parameter) {
       if ((char *)node->content == parent->parameters[0]) {
-        free_node(node);
+        free_node(*node);
         *node = clone_node(*argument);
       }
     } else if (node->type == Lambda) {
@@ -45,14 +45,14 @@ int beta_reduction(Expr *expr) {
       LambdaContent *lambda = node->content;
 
       apply(lambda, node + 1);
-      free_node(node + 1);
+      free_node(node[1]);
 
       if (!lambda->parameter_number) {
         if (lambda->body.size == 2) {
           Node first = clone_node(lambda->body.ast[0]);
           Node second = clone_node(lambda->body.ast[1]);
 
-          free_node(node);
+          free_node(*node);
 
           node[0] = first;
           node[1] = second;
@@ -133,7 +133,7 @@ int beta_reduction(Expr *expr) {
 
     if (content->size == 1) {
       Node inner = clone_node(*content->ast);
-      free_node(node);
+      free_node(*node);
       *node = inner;
 
       return 1;

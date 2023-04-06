@@ -6,6 +6,22 @@
 #include "parser.h"
 #include "utils.h"
 
+int ignore_space_find_token(const LexerToken *start, int size, int find_any,
+                            TokenType sought) {
+  LexerToken t;
+
+  for (int i = 1; i < size; i++) {
+    t = start[i];
+
+    if (t.type == Space)
+      continue;
+    else if (find_any || t.type == sought)
+      return i;
+  }
+
+  return 0;
+}
+
 char *slice_string(const char *src, int start, int end) {
   if (strlen(src) < end && start >= end && start < 0)
     return 0;
@@ -112,15 +128,15 @@ Node clone_node(Node node) {
   return new_node;
 }
 
-void free_node(Node *node) {
-  if (node->type == Lambda) {
-    LambdaContent *content = (LambdaContent *)node->content;
+void free_node(Node node) {
+  if (node.type == Lambda) {
+    LambdaContent *content = (LambdaContent *)node.content;
 
     char **parameters = content->parameters -
                         (content->initial_para_num - content->parameter_number);
 
     for (int i = 0; i < content->body.size; i++)
-      free_node(content->body.ast + i);
+      free_node(content->body.ast[i]);
 
     for (int i = 0; i < content->initial_para_num; i++)
       free(parameters[i]);
@@ -128,24 +144,24 @@ void free_node(Node *node) {
     free(parameters);
     free(content->body.ast);
     free(content);
-  } else if (node->type == NT_Ident) {
-    char *content = node->content;
+  } else if (node.type == NT_Ident) {
+    char *content = node.content;
 
     free(content);
-  } else if (node->type == Parameter) {
+  } else if (node.type == Parameter) {
     // Nothing to do here content is dependent on pointer to parameter and
     // lambda should always outlive this node
 
-  } else if (node->type == NT_Expr) {
-    Expr *content = (Expr *)node->content;
+  } else if (node.type == NT_Expr) {
+    Expr *content = (Expr *)node.content;
 
     for (int i = 0; i < content->size; i++)
-      free_node(content->ast + i);
+      free_node(content->ast[i]);
 
     free(content->ast);
     free(content);
   } else {
-    printf("Error: Cannot free node of type %d\n", node->type);
+    printf("Error: Cannot free node of type %d\n", node.type);
     exit(1);
   }
 }
@@ -157,7 +173,7 @@ void convert_de_bruijn_index(LambdaContent *lambda, Expr *body) {
     if (node->type == NT_Ident) {
       for (int j = 0; j < lambda->parameter_number; j++) {
         if (!strcmp((char *)node->content, lambda->parameters[j])) {
-          free_node(node);
+          free_node(*node);
 
           *node = (Node){.type = Parameter, .content = lambda->parameters[j]};
           break;

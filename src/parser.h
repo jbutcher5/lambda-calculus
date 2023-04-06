@@ -29,8 +29,17 @@ typedef struct {
 
 typedef struct {
   char *assignee;
-  Node *body;
+  Expr body;
 } AssignmentContent;
 
-Expr parser(LexerToken *tokens, int size, const char *text, int *i);
+struct Item {
+  char *key;
+  Expr *value;
+  struct Item *next;
+};
+
+typedef struct Item Item;
+
+Expr parser(LexerToken *tokens, int size, const char *text, int *i,
+            Item *table);
 void convert_de_bruijn_index(LambdaContent *lambda, Expr *body);

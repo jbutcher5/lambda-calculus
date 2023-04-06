@@ -1,9 +1,9 @@
 #include "display.h"
+#include "hash.h"
 #include "lexer.h"
 #include "parser.h"
 #include "reducer.h"
 #include "utils.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,13 +12,16 @@
 
 // And False False: (\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)
 
-int main() {
-  const char *text = "(\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)";
+int main(void) {
+  const char *text =
+      "T = (\\x -> x)\n(\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)";
+
+  Item *table = create_table();
 
   int i = 0;
 
   LexerResult lexed = lexer(text);
-  Expr expr = parser(lexed.buffer, lexed.size, text, &i);
+  Expr expr = parser(lexed.buffer, lexed.size, text, &i, table);
 
   free(lexed.buffer);
 
@@ -27,9 +30,11 @@ int main() {
   } while (beta_reduction(&expr));
 
   for (int i = 0; i < expr.size; i++)
-    free_node(expr.ast + i);
+    free_node(expr.ast[i]);
 
   free(expr.ast);
+
+  free_table(table);
 
   return 0;
 }
