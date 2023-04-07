@@ -63,7 +63,9 @@ char *display_ast(Expr expr) {
   int buffer_size = strlen(first) + 2;
   strcpy(buffer, first);
   free(first);
-  strcat(buffer, " ");
+
+  if (expr.size > 1)
+    strcat(buffer, " ");
 
   for (int i = 1; i < expr.size; i++) {
     char *literal_node = display_node(expr.ast + i, NULL, 0);
