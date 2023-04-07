@@ -35,7 +35,9 @@ char *display_node(Node *node, char *buffer, int buffer_size) {
   } else if (node->type == Parameter) {
     strcpy(buffer, node->content);
   } else if (node->type == NT_Expr) {
-    snprintf(buffer, buffer_size, "(%s)", display_ast(*(Expr *)node->content));
+    char *expr_str = display_ast(*(Expr *)node->content);
+    snprintf(buffer, buffer_size, "(%s)", expr_str);
+    free(expr_str);
   } else {
     printf("Error: Unkown type (%d)\n", node->type);
     exit(1);
@@ -59,8 +61,8 @@ char *display_parameters(char **parameters, int parameter_number) {
 
 char *display_ast(Expr expr) {
   char *first = display_node(expr.ast, NULL, 0);
-  char *buffer = malloc((strlen(first) + 2) * sizeof(char));
-  int buffer_size = strlen(first) + 2;
+  int buffer_size = strlen(first) + 1 + (expr.size > 1);
+  char *buffer = calloc(buffer_size, sizeof(char));
   strcpy(buffer, first);
   free(first);
 
