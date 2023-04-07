@@ -3,11 +3,10 @@
 #include "lexer.h"
 
 typedef enum {
-  Lambda,     // LambdaContent*
-  NT_Ident,   // char*
-  Assignment, // void*
-  Parameter,  // char*
-  NT_Expr,    // Expr*
+  Lambda,    // LambdaContent*
+  NT_Ident,  // char*
+  Parameter, // char*
+  NT_Expr,   // Expr*
 } NodeType;
 
 typedef struct {
@@ -26,11 +25,6 @@ typedef struct {
   int initial_para_num;
   Expr body;
 } LambdaContent;
-
-typedef struct {
-  char *assignee;
-  Expr body;
-} AssignmentContent;
 
 struct Item {
   char *key;

@@ -13,8 +13,9 @@
 // And False False: (\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)
 
 int main(void) {
-  const char *text =
-      "T = (\\x -> x)\n(\\x y -> x y (\\x y -> y)) (\\x y -> y) (\\x y -> y)";
+  const char *text = "TRUE = \\x y -> x\nFALSE = \\x y -> y\nAND = \\x y "
+                     "-> x y (\\x y -> y)\n"
+                     "AND FALSE TRUE\n";
 
   Item *table = create_table();
 
@@ -25,8 +26,16 @@ int main(void) {
 
   free(lexed.buffer);
 
-  do {
+  puts(text);
+
+  replace_idents(&expr, table);
+
+  while (beta_reduction(&expr)) {
+    replace_idents(&expr, table);
     print_ast(expr);
+  }
+
+  do {
   } while (beta_reduction(&expr));
 
   for (int i = 0; i < expr.size; i++)

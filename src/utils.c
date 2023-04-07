@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hash.h"
 #include "lexer.h"
 #include "parser.h"
 #include "utils.h"
@@ -190,6 +191,24 @@ void convert_de_bruijn_index(LambdaContent *lambda, Expr *body) {
           *node = (Node){.type = Parameter, .content = lambda->parameters[j]};
           break;
         }
+      }
+    }
+  }
+}
+
+void replace_idents(Expr *expr, Item *table) {
+  for (int i = 0; i < expr->size; i++) {
+    Node *node = expr->ast + i;
+
+    if (node->type == NT_Ident) {
+      char *content = node->content;
+
+      Expr *value = lookup_key(table, content);
+
+      if (value) {
+        free_node(*node);
+
+        *node = clone_node((Node){.type = NT_Expr, .content = value});
       }
     }
   }

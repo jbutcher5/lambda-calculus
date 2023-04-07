@@ -10,3 +10,4 @@ void free_node(Node node);
 void convert_de_bruijn_index(LambdaContent *lambda, Expr *body);
 int ignore_space_find_token(const LexerToken *start, int size, int find_any,
                             TokenType sought);
+void replace_idents(Expr *expr, Item *table);

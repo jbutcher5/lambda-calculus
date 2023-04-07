@@ -20,10 +20,13 @@ Item *create_table(void) { return (Item *)calloc(TABLE_SIZE, sizeof(Item)); }
 Expr *lookup_key(Item *table, const char *str) {
   int hash = hashing_function(str);
 
-  Item result = table[hash % TABLE_SIZE];
+  Item *result = table + hash % TABLE_SIZE;
 
-  while (!result.next || !strcmp(str, result.key)) {
-    result = *result.next;
+  while (result->key) {
+    if (!strcmp(str, result->key))
+      return result->value;
+
+    result = result->next;
   }
 
   return 0;
@@ -37,11 +40,12 @@ void insert_item(Item *table, Item item) {
   while (1) {
     if (!lookup->key) {
       *lookup = item;
+
+      if (!lookup->next)
+        lookup->next = calloc(1, sizeof(Item));
+
       break;
     }
-
-    if (!lookup->next)
-      lookup->next = calloc(1, sizeof(Item));
 
     lookup = lookup->next;
   }
