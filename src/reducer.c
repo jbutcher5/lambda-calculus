@@ -129,19 +129,14 @@ int beta_reduction(Expr *expr) {
       continue;
     Expr *content = node->content;
 
-    int result = beta_reduction(content);
+    while (beta_reduction(content))
+      ;
 
-    if (content->size == 1) {
-      Node inner = clone_node(*content->ast);
-      free_node(*node);
-      *node = inner;
+    int new_size = expr->size + content->size - 1;
+    expr->ast = replace_node_with_expr(expr, i, content);
+    expr->size = new_size;
 
-      return 1;
-    }
-
-    if (result) {
-      return 1;
-    }
+    return 1;
   }
 
   return 0;

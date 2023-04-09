@@ -15,7 +15,7 @@
 int main(void) {
   const char *text = "TRUE = \\x y -> x\nFALSE = \\x y -> y\nAND = \\x y "
                      "-> x y (\\x y -> y)\n"
-                     "AND FALSE TRUE\n";
+                     "RESULT = AND TRUE TRUE\n\nRESULT\n";
 
   Item *table = create_table();
 
@@ -34,9 +34,6 @@ int main(void) {
     replace_idents(&expr, table);
     print_ast(expr);
   }
-
-  do {
-  } while (beta_reduction(&expr));
 
   for (int i = 0; i < expr.size; i++)
     free_node(expr.ast[i]);

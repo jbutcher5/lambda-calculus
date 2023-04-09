@@ -213,3 +213,20 @@ void replace_idents(Expr *expr, Item *table) {
     }
   }
 }
+
+Node *replace_node_with_expr(Expr *a, int index, Expr *b) {
+  Node *ast = calloc(a->size + b->size - 1, sizeof(Node));
+
+  int i = 0;
+
+  for (; i < index; i++)
+    ast[i] = clone_node(a->ast[i]);
+
+  for (int j = 0; j < b->size; i++, j++)
+    ast[i] = clone_node(b->ast[j]);
+
+  for (int j = index + 1; i < a->size; i++, j++)
+    ast[i] = clone_node(a->ast[j]);
+
+  return ast;
+}
