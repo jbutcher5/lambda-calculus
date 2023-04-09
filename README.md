@@ -21,6 +21,21 @@ RESULT = AND TRUE TRUE
 
 RESULT a b
 ```
-```
 
+```
+TRUE = \x y -> x
+FALSE = \x y -> y
+AND = \x y -> x y (\x y -> y)
+RESULT = AND TRUE TRUE
+
+RESULT
+
+((\x y -> x y (\x y -> y))) ((\x y -> x)) ((\x y -> x))
+(\x y -> x y (\x y -> y)) ((\x y -> x)) ((\x y -> x))
+(\y -> ((\x y -> x)) y (\x y -> y)) ((\x y -> x))
+((\x y -> x)) ((\x y -> x)) (\x y -> y)
+(\x y -> x) ((\x y -> x)) (\x y -> y)
+(\y -> ((\x y -> x))) (\x y -> y)
+((\x y -> x))
+(\x y -> x)
 ```
