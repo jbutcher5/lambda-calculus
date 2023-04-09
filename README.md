@@ -28,14 +28,16 @@ FALSE = \x y -> y
 AND = \x y -> x y (\x y -> y)
 RESULT = AND TRUE TRUE
 
-RESULT
+RESULT a b
 
-((\x y -> x y (\x y -> y))) ((\x y -> x)) ((\x y -> x))
-(\x y -> x y (\x y -> y)) ((\x y -> x)) ((\x y -> x))
-(\y -> ((\x y -> x)) y (\x y -> y)) ((\x y -> x))
-((\x y -> x)) ((\x y -> x)) (\x y -> y)
-(\x y -> x) ((\x y -> x)) (\x y -> y)
-(\y -> ((\x y -> x))) (\x y -> y)
-((\x y -> x))
-(\x y -> x)
+((\x y -> x y (\x y -> y))) ((\x y -> x)) ((\x y -> x)) a b
+(\x y -> x y (\x y -> y)) ((\x y -> x)) ((\x y -> x)) a b
+(\x y -> x y (\x y -> y)) (\x y -> x) ((\x y -> x)) a b
+(\x y -> x y (\x y -> y)) (\x y -> x) (\x y -> x) a b
+(\y -> (\x y -> x) y (\x y -> y)) (\x y -> x) a b
+(\x y -> x) (\x y -> x) (\x y -> y) a b
+(\y -> (\x y -> x)) (\x y -> y) a b
+(\x y -> x) a b
+(\y -> a) b
+a
 ```
