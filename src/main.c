@@ -15,7 +15,7 @@
 int main(void) {
   const char *text = "TRUE = \\x y -> x\nFALSE = \\x y -> y\nAND = \\x y "
                      "-> x y (\\x y -> y)\n"
-                     "RESULT = AND TRUE TRUE\n\nRESULT\n";
+                     "RESULT = AND TRUE TRUE\n\nRESULT a b\n";
 
   Item *table = create_table();
 

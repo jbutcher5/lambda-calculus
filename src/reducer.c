@@ -38,6 +38,24 @@ int beta_reduction(Expr *expr) {
   if (!last_expr)
     last_expr = expr;
 
+  // Evaluate brackets if all non-bracket stuff is beta-normal
+
+  for (int i = 0; i < expr->size; i++) {
+    Node *node = expr->ast + i;
+    if (node->type != NT_Expr)
+      continue;
+    Expr *content = node->content;
+
+    while (beta_reduction(content))
+      ;
+
+    int new_size = expr->size + content->size - 1;
+    expr->ast = replace_node_with_expr(expr, i, content);
+    expr->size = new_size;
+
+    return 1;
+  }
+
   for (int i = 0; i < expr->size; i++) {
     Node *node = expr->ast + i;
 
@@ -119,24 +137,6 @@ int beta_reduction(Expr *expr) {
 
       return 1;
     }
-  }
-
-  // Evaluate brackets if all non-bracket stuff is beta-normal
-
-  for (int i = 0; i < expr->size; i++) {
-    Node *node = expr->ast + i;
-    if (node->type != NT_Expr)
-      continue;
-    Expr *content = node->content;
-
-    while (beta_reduction(content))
-      ;
-
-    int new_size = expr->size + content->size - 1;
-    expr->ast = replace_node_with_expr(expr, i, content);
-    expr->size = new_size;
-
-    return 1;
   }
 
   return 0;

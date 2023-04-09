@@ -225,7 +225,7 @@ Node *replace_node_with_expr(Expr *a, int index, Expr *b) {
   for (int j = 0; j < b->size; i++, j++)
     ast[i] = clone_node(b->ast[j]);
 
-  for (int j = index + 1; i < a->size; i++, j++)
+  for (int j = index + 1; j < a->size; i++, j++)
     ast[i] = clone_node(a->ast[j]);
 
   return ast;
