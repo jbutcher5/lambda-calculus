@@ -220,13 +220,16 @@ Node *replace_node_with_expr(Expr *a, int index, Expr *b) {
   int i = 0;
 
   for (; i < index; i++)
-    ast[i] = clone_node(a->ast[i]);
+    ast[i] = a->ast[i];
 
   for (int j = 0; j < b->size; i++, j++)
-    ast[i] = clone_node(b->ast[j]);
+    ast[i] = b->ast[j];
 
   for (int j = index + 1; j < a->size; i++, j++)
-    ast[i] = clone_node(a->ast[j]);
+    ast[i] = a->ast[j];
+
+  free(a->ast);
+  free(b->ast);
 
   return ast;
 }
