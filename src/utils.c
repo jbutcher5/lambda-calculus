@@ -228,8 +228,5 @@ Node *replace_node_with_expr(Expr *a, int index, Expr *b) {
   for (int j = index + 1; j < a->size; i++, j++)
     ast[i] = a->ast[j];
 
-  free(a->ast);
-  free(b->ast);
-
   return ast;
 }
